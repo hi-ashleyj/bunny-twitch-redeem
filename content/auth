@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Redirecting...</title>
+        <style>
+            body {
+                background: black;
+                color: white;
+                margin: 0px;
+                padding: 0px;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            div.content {
+                position: absolute;
+                top: 50vh;
+                left: 50vw;
+                transform: translateX(-50%) translateY(-50%);
+                color: white;
+                font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">Redirecting...</div>
+
+        <script>
+            let state = location.search;
+            let params = {};
+            if (state.length > 0) {
+                let match = state.slice(1).split("&");
+                for (let str of match) {
+                    let chop = str.split("=");
+                    params[chop[0]] = chop[1];
+                }
+            }
+
+            if (params.state) {
+                location.assign("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=58luouc78gmhbvvzsbmnkwdkjxjn1h&redirect_uri=http://localhost:6969/token_grab&scope=channel:read:redemptions+user:read:email&state=" + params.state);
+            } else {
+                location.assign("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=58luouc78gmhbvvzsbmnkwdkjxjn1h&redirect_uri=http://localhost:6969/token_grab&scope=channel:read:redemptions+user:read:email");
+            }
+        </script>
+    </body>
+</html>

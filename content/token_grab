@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Doing Auth Stuff...</title>
+        <style>
+            body {
+                background: black;
+                color: white;
+                margin: 0px;
+                padding: 0px;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            div.content {
+                position: absolute;
+                top: 50vh;
+                left: 50vw;
+                transform: translateX(-50%) translateY(-50%);
+                color: white;
+                font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">Thinking...</div>
+
+        <script>
+            let res_data = location.hash;
+
+            let Comms = {};
+            Comms.connection = window.location.href.split("/").slice(0, 3).join("/");;
+
+            Comms.post = function(method, body) {
+                return new Promise((resolve, reject) => {
+                    let request = new XMLHttpRequest();
+                    request.open("POST", Comms.connection + "?method=" + method);
+                    request.addEventListener("load", () => {
+                        resolve(request.responseText);
+                    });
+                    request.addEventListener("error", () => {
+                        reject(request.status);
+                    });
+                    if (body) {
+                        request.send(body);
+                    } else {
+                        request.send();
+                    }
+                });
+            };
+
+            let slip = res_data.slice(1).split("&");
+            let important = {};
+            for (var str of slip) {
+                let milk = str.split("=");
+                important[milk[0]] = milk[1];
+            }
+
+            Comms.post("token_get", important.access_token).then(() => {
+                document.getElementsByClassName("content")[0].innerText = "Done! You can now close this window.";
+            }).catch(() => {
+                document.getElementsByClassName("content")[0].innerText = "Something went wrong.";
+            });
+        </script>
+    </body>
+</html>

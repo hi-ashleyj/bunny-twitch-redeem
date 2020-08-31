@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Twitch Stream Overlay</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+
+        <script>
+            let Socket = {};
+            let wsc;
+            Socket.events = [];
+            Socket.on = function(type, call) {
+                Socket.events.push({type: type, call: call});
+            };
+
+            let alertStash = {};
+
+            let escapeHTML = function(unsafe) {
+                return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            };
+        </script>
+
+        <div id="video-dump" hidden></div>
+
+        <script src="ui-content.js"></script>
+        <script src="comms.js"></script>
+        <script src="ws.js"></script>
+        <script src="wsevents.js"></script>
+    </body>
+</html>
