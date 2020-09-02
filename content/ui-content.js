@@ -7,16 +7,16 @@ UIEls.Redeem = function(prop) {
     let element = document.createElement("div");
     element.className = "content alert redeem";
 
-    element.append(alertStash[prop.name]);
+    element.append(alertStash[prop.name.toLowerCase()]);
 
-    alertStash[prop.name].currentTime = 0;
+    alertStash[prop.name.toLowerCase()].currentTime = 0;
 
-    window.setTimeout(() => {element.setAttribute("data-vis", true); alertStash[prop.name].play()}, 100);
+    window.setTimeout(() => {element.setAttribute("data-vis", true); alertStash[prop.name.toLowerCase()].play()}, 100);
 
     UIEls.alertELs.push(element);
     document.body.append(element);
 
-    window.setTimeout(UIEls.removeAlert, (alertStash[prop.name].duration * 1000) - 400);
+    window.setTimeout(UIEls.removeAlert, (alertStash[prop.name.toLowerCase()].duration * 1000) - 400);
 };
 
 UIEls.NextAlert = function() {
@@ -56,3 +56,4 @@ UIEls.removeAlert = function() {
         }
     }, 500);
 };
+

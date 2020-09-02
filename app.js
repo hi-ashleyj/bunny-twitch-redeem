@@ -155,6 +155,10 @@ let handleHTTPRequest = async function (req, res) {
             res.end("Sent user reload event to all clients\n");
         }
 
+        if (params.test) {
+
+        }
+
     } else if (req.method == "POST" && parseIt.search) {
         let query = parseIt.search.slice(1);
         let slit = query.split("&");
@@ -246,6 +250,8 @@ PubSub.handler = function(data) {
     } else if (val.type.toLowerCase() == "reward-redeemed") {
         wsReply(null, "REDEEM|" + JSON.stringify({name: val.data.reward.title, input: val.data.user_input}));
     }
+
+    console.log(val);
 };
 
 PubSub.ping = function() {

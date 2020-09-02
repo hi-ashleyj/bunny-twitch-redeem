@@ -18,7 +18,7 @@ Socket.on("reload", async (_data) => {
 
         document.getElementById("video-dump").append(work);
         
-        alertStash[name] = work;
+        alertStash[name.toLowerCase()] = work;
     }
 });
 
