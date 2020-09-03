@@ -250,7 +250,7 @@ PubSub.handler = function(data) {
     } else if (val.type.toLowerCase() == "message") {
         let message = JSON.parse(val.data.message);
         if (message.type == "reward-redeemed") {
-            wsReply(null, "REDEEM|" + JSON.stringify({name: message.data.reward.title, input: message.data.user_input}));
+            wsReply(null, "REDEEM|" + JSON.stringify({name: message.data.redemption.reward.title, input: null}));
         }
     }
 
