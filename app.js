@@ -155,8 +155,14 @@ let handleHTTPRequest = async function (req, res) {
             res.end("Sent user reload event to all clients\n");
         }
 
-        if (params.test) {
-
+        if (params.stop) {
+            if (params.stop == "once") {
+                wsReply(null, "STOP|user");
+                res.end("Stopped current playback\n");
+            } else if (params.stop == "flush") {
+                wsReply(null, "FLUSH|user");
+                res.end("Stopped playback and flushed list\n");
+            }
         }
 
     } else if (req.method == "POST" && parseIt.search) {

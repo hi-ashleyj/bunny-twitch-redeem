@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>GIF Control Console</title>
+        <style>
+            body {
+                background: #151515;
+                color: white;
+                margin: 0px;
+                padding: 0px;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            div.content {
+                position: absolute;
+                top: 50vh;
+                left: 50vw;
+                max-width: 500px;
+                max-height: 500px;
+                width: 100%;
+                height: 100%;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1em;
+
+                transform: translateX(-50%) translateY(-50%);
+                color: white;
+                font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+
+            button.button {
+                background: #222222;
+                border: 1px solid #333333;
+                border-radius: 0.75em;
+                color: white;
+
+                transition-property: border, background-color;
+                transition-duration: 0.35s;
+            }
+
+            button.button:hover {
+                border: 1px solid #888888;
+            }
+
+            button.button:focus {
+                border: 1px solid #bbbbbb;
+                outline: none;
+            }
+
+            button.button:active {
+                border: 1px solid #ffffff;
+                background-color: #ffffff;
+                outline: none;
+            }
+
+            button.button[data-working] {
+                background-color: #7700cc;
+            }
+
+            button.button[data-error] {
+                background-color: #aa0000;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">
+            <button class="button action reload">Reload active clients</button>
+            <button class="button action stop">Stop this one</button>
+            <button class="button action flush">Flush cue</button>
+        </div>
+
+        <script>
+            let Comms = {};
+            Comms.connection = window.location.href.split("/").slice(0, 3).join("/");;
+
+            Comms.get = function(query, body) {
+                return new Promise(async (resolve, reject) => {
+                    let request = new XMLHttpRequest();
+                    request.open("GET", Comms.connection + "?" + query);
+                    request.addEventListener("load", () => {
+                        resolve(request.responseText)
+                    });
+                    request.addEventListener("error", () => {
+                        reject(request.status);
+                    });
+                    if (body) {
+                        request.send(body);
+                    } else {
+                        request.send();
+                    }
+                });
+            };
+
+            let reloadEL = document.querySelector("button.button.action.reload");
+            let stopEL = document.querySelector("button.button.action.stop");
+            let flushEL = document.querySelector("button.button.action.flush");
+
+            reloadEL.addEventListener("click", () => {
+                reloadEL.setAttribute("data-working", true);
+                Comms.get("reload=user", null).then(() => {
+                    reloadEL.removeAttribute("data-working");
+                }).catch(() => {
+                    reloadEL.removeAttribute("data-working");
+                    reloadEL.setAttribute("data-error", true);
+                    reloadEL.innerText = "Something went wrong.";
+                });
+            });
+
+            stopEL.addEventListener("click", () => {
+                stopEL.setAttribute("data-working", true);
+                Comms.get("stop=once", null).then(() => {
+                    stopEL.removeAttribute("data-working");
+                }).catch(() => {
+                    stopEL.removeAttribute("data-working");
+                    stopEL.setAttribute("data-error", true);
+                    stopEL.innerText = "Something went wrong.";
+                });
+            });
+
+            flushEL.addEventListener("click", () => {
+                flushEL.setAttribute("data-working", true);
+                Comms.get("stop=flush", null).then(() => {
+                    flushEL.removeAttribute("data-working");
+                }).catch(() => {
+                    flushEL.removeAttribute("data-working");
+                    flushEL.setAttribute("data-error", true);
+                    flushEL.innerText = "Something went wrong.";
+                });
+            });
+
+
+
+        </script>
+    </body>
+</html>

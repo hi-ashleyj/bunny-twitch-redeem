@@ -24,3 +24,4 @@ It'll take the most recent config whenever you load it. You can also reload it b
 
 Once you've added some files, you can test that it works by running [http://localhost:6969/?test={name}](http://localhost:6969/?test={name}). The notification should pop up on the thing with sound and everything. Yay.
 
+You've also got some stop and clear commands. They're at [http://localhost:6969/?stop=once](http://localhost:6969/?stop=once) to stop current playback and [http://localhost:6969/?stop=flush](http://localhost:6969/?stop=flush) to burn the rest of the gifs in the cue in case someone (me) spams gay frogs for no reason.

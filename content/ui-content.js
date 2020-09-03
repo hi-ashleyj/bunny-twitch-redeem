@@ -2,6 +2,7 @@ let UIEls = {};
 
 UIEls.alertELs = [];
 let alertCue = [];
+let alertTimeout;
 
 UIEls.Redeem = function(prop) {
     let element = document.createElement("div");
@@ -16,7 +17,7 @@ UIEls.Redeem = function(prop) {
     UIEls.alertELs.push(element);
     document.body.append(element);
 
-    window.setTimeout(UIEls.removeAlert, (alertStash[prop.name.toLowerCase()].duration * 1000) - 400);
+    alertTimeout = window.setTimeout(UIEls.removeAlert, (alertStash[prop.name.toLowerCase()].duration * 1000) - 400);
 };
 
 UIEls.NextAlert = function() {
@@ -48,6 +49,8 @@ UIEls.removeAlert = function() {
         }, 500);
     }
 
+    alertTimeout = undefined;
+
     window.setTimeout(() => {
         UIEls.alertELs = [];
 
@@ -55,5 +58,26 @@ UIEls.removeAlert = function() {
             UIEls.NextAlert();
         }
     }, 500);
+};
+
+UIEls.stopAlert = function(flush) {
+    if (alertTimeout) {
+        window.clearTimeout(alertTimeout);
+        alertTimeout = undefined;
+        if (flush) {
+            alertCue = [];
+        }
+        let work = document.querySelectorAll("div.content.alert.redeem[data-vis]");
+        for (let i = 0; i < work.length; i++) {
+            let videos = work[i].querySelectorAll("video");
+            for (let j = 0; j < videos.length; j++) {
+                if (videos[j].currentTime + 0.6 < videos[j].duration) {
+                    let sevn = videos[j];
+                    window.setTimeout(() => {sevn.pause(); }, 500);
+                }
+            }
+        }
+        UIEls.removeAlert();
+    } 
 };
 

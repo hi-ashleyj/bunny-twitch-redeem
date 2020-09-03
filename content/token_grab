@@ -59,7 +59,8 @@
             }
 
             Comms.post("token_get", important.access_token).then(() => {
-                document.getElementsByClassName("content")[0].innerText = "Done! You can now close this window.";
+                document.getElementsByClassName("content")[0].innerText = "Heading to the console...";
+                location.assign("http://localhost:6969/console");
             }).catch(() => {
                 document.getElementsByClassName("content")[0].innerText = "Something went wrong.";
             });

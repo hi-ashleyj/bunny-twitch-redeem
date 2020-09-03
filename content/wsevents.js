@@ -25,3 +25,11 @@ Socket.on("reload", async (_data) => {
 Socket.on("redeem", (obj) => {
     UIEls.cueAlert("redeem", JSON.parse(obj));
 });
+
+Socket.on("stop", () => {
+    UIEls.stopAlert(false);
+});
+
+Socket.on("flush", () => {
+    UIEls.stopAlert(true);
+});
