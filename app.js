@@ -247,11 +247,14 @@ PubSub.handler = function(data) {
             wsReply(null, "CONNECT_ERR|PubSub");
             console.error("PubSub failed");
         }
-    } else if (val.type.toLowerCase() == "reward-redeemed") {
-        wsReply(null, "REDEEM|" + JSON.stringify({name: val.data.reward.title, input: val.data.user_input}));
+    } else if (val.type.toLowerCase() == "message") {
+        let message = JSON.parse(val.data.message);
+        if (message.type == "reward-redeemed") {
+            wsReply(null, "REDEEM|" + JSON.stringify({name: message.data.reward.title, input: message.data.user_input}));
+        }
     }
 
-    console.log(val);
+    // console.log(val);
 };
 
 PubSub.ping = function() {
