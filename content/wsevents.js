@@ -14,7 +14,6 @@ Socket.on("reload", async (_data) => {
         work.className = "redeem video";
         work.src = Comms.connection + ((Comms.connection.slice(-1) == "/") ? "res/" : "/res/") + list[name];
         work.preload = "auto";
-        work.volume = 0.6;
 
         document.getElementById("video-dump").append(work);
         

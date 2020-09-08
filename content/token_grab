@@ -31,7 +31,7 @@
             let res_data = location.hash;
 
             let Comms = {};
-            Comms.connection = window.location.href.split("/").slice(0, 3).join("/");;
+            Comms.connection = window.location.href.split("/").slice(0, 3).join("/");
 
             Comms.post = function(method, body) {
                 return new Promise((resolve, reject) => {
