@@ -81,8 +81,10 @@ if (!fsSync.existsSync(documentsFolder)) {
 }
 
 let handleHTTPRequest = async function (req, res) {
-    let parseIt = url.parse(req.url, true);
-    let pathed = path.parse(req.url);
+    let newURL = decodeURI(req.url);
+
+    let parseIt = url.parse(newURL, true);
+    let pathed = path.parse(newURL);
 
     let needsIndex = "index.html";
 
@@ -91,12 +93,12 @@ let handleHTTPRequest = async function (req, res) {
     }
 
     if (req.method == "GET" && !parseIt.search) {
-        // This handles sending the pages required.
+        // This handles sending the pages required
         
         let pathpath = path.resolve(__dirname, "content", parseIt.pathname.slice(1).split(".html").join(""), needsIndex);
 
         if (parseIt.pathname.includes("res")) {
-            pathpath = path.resolve(documentsFolder, parseIt.pathname.slice(1).split("res/").join(""));
+            pathpath = path.resolve(documentsFolder, decodeURI(parseIt.pathname.slice(1).split("res/").join("")));
         }
 
         try {
@@ -136,7 +138,7 @@ let handleHTTPRequest = async function (req, res) {
         let params = {};
         for (var str of slit) {
             let slitslit = str.split("=");
-            params[slitslit[0]] = slitslit[1];
+            params[decodeURI(slitslit[0])] = decodeURI(slitslit[1]);
         }
 
         if (params.method) {
