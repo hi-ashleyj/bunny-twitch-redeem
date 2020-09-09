@@ -4,8 +4,12 @@
     <head>
         <title>GIF Control Console</title>
         <style>
+            * {
+                box-sizing: border-box;
+                font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
             body {
-                background: #151515;
+                background: #121212;
                 color: white;
                 margin: 0px;
                 padding: 0px;
@@ -23,18 +27,55 @@
                 width: 100%;
                 height: 100%;
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                grid-template-rows: 2fr 1fr;
+                grid-template-columns: 1fr;
                 gap: 1em;
 
                 transform: translateX(-50%) translateY(-50%);
                 color: white;
-                font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             }
 
-            button.button {
+            div.inner.grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1em;
+            }
+
+            .tile {
                 background: #222222;
                 border: 1px solid #333333;
                 border-radius: 0.75em;
+                color: white;
+
+                transition-property: border, background-color;
+                transition-duration: 0.35s;
+            }
+
+            button.tile:hover {
+                border: 1px solid #888888;
+            }
+
+            button.tile:focus {
+                border: 1px solid #bbbbbb;
+                outline: none;
+            }
+
+            button.tile:active {
+                border: 1px solid #ffffff;
+                background-color: #ffffff;
+                outline: none;
+            }
+            :not(button).tile {
+                display: grid;
+                padding: 1em;
+                align-items: center;
+            }
+
+            button.button {
+                background: #000000;
+                border: 1px solid #333333;
+                border-radius: 0.75em;
+                padding: 1em;
                 color: white;
 
                 transition-property: border, background-color;
@@ -56,25 +97,92 @@
                 outline: none;
             }
 
-            button.button[data-working] {
+            /* :not(button).tile div {
+
+            } */
+
+            .tile[data-working] {
                 background-color: #7700cc;
             }
 
-            button.button[data-error] {
+            .tile[data-error] {
                 background-color: #aa0000;
             }
+
+            input[type="text"] {
+                display: inline-block;
+                color: inherit;
+                background: none;
+                width: 100%;
+                font-size: 1rem;
+                
+                border: none;
+                border-bottom: 2px solid #888888;
+
+                transition-duration: 0.35s;
+                transition-property: border, color;
+                will-change: border, color;
+            }
+
+            input[type="text"][data-working] {
+                border-bottom: 2px solid #7700cc;
+                color: #7700cc;
+            }
+
+            input[type="text"][data-error] {
+                border-bottom: 2px solid #aa0000;
+                color: #aa0000;
+            }
+
+            input[type="text"]:focus {
+                border-bottom: 2px solid #ffffff;
+                outline: none;
+            }
+
+            div.version.float {
+                position: fixed;
+                bottom: 1em;
+                right: 1em;
+                color: white;
+                opacity: 0.35;
+                user-select: none;
+                pointer-events: none;
+                font-style: italic;
+            }
+            
         </style>
     </head>
     <body>
         <div class="content">
-            <button class="button action reload">Reload active clients</button>
-            <button class="button action stop">Stop this one</button>
-            <button class="button action flush">Flush cue</button>
+            <div class="inner grid">
+                <button class="tile action reload">Reload active clients</button>
+                <button class="tile action stop">Stop this one</button>
+                <button class="tile action flush">Flush cue</button>
+            </div>
+            <div class="inner grid">
+                <div class="tile test">
+                    <div style="display: inline-block;">
+                        Test Alert:<br /><br />
+                        <input type="text" class="test input text" placeholder="GIF_GayFrogs"/><br /><br />
+                        <button class="button action test go">Test</button>
+                    </div>
+                    
+                </div>
+                <div class="tile volume">
+                    <div style="display: inline-block;">
+                        Volume Set:<br /><br />
+                        <input type="text" class="volume input text" placeholder="100%"/><br /><br />
+                        <button class="button action volume go">Set</button>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <div class="version float"></div>
 
         <script>
             let Comms = {};
-            Comms.connection = window.location.href.split("/").slice(0, 3).join("/");;
+            Comms.connection = window.location.href.split("/").slice(0, 3).join("/");
 
             Comms.get = function(query, body) {
                 return new Promise(async (resolve, reject) => {
@@ -94,9 +202,35 @@
                 });
             };
 
-            let reloadEL = document.querySelector("button.button.action.reload");
-            let stopEL = document.querySelector("button.button.action.stop");
-            let flushEL = document.querySelector("button.button.action.flush");
+            Comms.post = function(query, body) {
+                return new Promise((resolve, reject) => {
+                    let request = new XMLHttpRequest();
+                    request.open("POST", Comms.connection + "?" + query);
+                    request.addEventListener("load", () => {
+                        resolve(request.responseText);
+                    });
+                    request.addEventListener("error", () => {
+                        reject(request.status);
+                    });
+                    if (body) {
+                        request.send(body);
+                    } else {
+                        request.send();
+                    }
+                });
+            };
+
+            let versionEL = document.querySelector("div.version.float");
+
+            let reloadEL = document.querySelector("button.tile.action.reload");
+            let stopEL = document.querySelector("button.tile.action.stop");
+            let flushEL = document.querySelector("button.tile.action.flush");
+            let testTILE = document.querySelector("div.tile.test");
+            let testINPUT = document.querySelector("input.test.input.text");
+            let testBUTTON = document.querySelector("button.button.action.test.go");
+            let volumeTILE = document.querySelector("div.tile.volume");
+            let volumeINPUT = document.querySelector("input.volume.input.text");
+            let volumeBUTTON = document.querySelector("button.button.action.volume.go");
 
             reloadEL.addEventListener("click", () => {
                 reloadEL.setAttribute("data-working", true);
@@ -131,7 +265,81 @@
                 });
             });
 
+            testBUTTON.addEventListener("click", async () => {
+                if (testINPUT.value.length > 0) {
+                    testTILE.setAttribute("data-working", true);
+                    Comms.get("test=" + testINPUT.value, null).then(() => {
+                        testTILE.removeAttribute("data-working");
+                        testINPUT.value = "";
+                    }).catch(() => {
+                        testTILE.removeAttribute("data-working");
+                        testTILE.setAttribute("data-error", true);
+                    });
+                } else {
+                    testINPUT.setAttribute("data-error", true);
+                }
+            });
 
+            testINPUT.addEventListener("input", () => {
+                if (testINPUT.value.length > 0) {
+                    testINPUT.removeAttribute("data-error");
+                }
+            });
+
+            testINPUT.addEventListener("keydown", (e) => {
+                if (e.key.toLowerCase() == "enter") {
+                    testBUTTON.click();
+                }
+            });
+
+
+            volumeBUTTON.addEventListener("click", async () => {
+                let newVol;
+                try {
+                    newVol = parseInt(volumeINPUT.value);
+                } catch (_err) {
+                    volumeINPUT.setAttribute("data-error", true);
+                    return;
+                }
+                if (volumeINPUT.value.length > 0 && newVol + "%" == volumeINPUT.value && newVol >= 0 && newVol <= 100) {
+                    volumeTILE.setAttribute("data-working", true);
+                    volumeINPUT.value = "";
+                    Comms.post("method=set_config", JSON.stringify({ volume: newVol / 100 })).then((newConfig) => {
+                        volumeTILE.removeAttribute("data-working");
+                        volumeINPUT.value = (Math.round(JSON.parse(newConfig).volume * 10000) / 100) + "%";
+                        volumeINPUT.setAttribute("data-working", true);
+                        window.setTimeout(() => {volumeINPUT.removeAttribute("data-working")}, 1500)
+                    }).catch(() => {
+                        volumeTILE.removeAttribute("data-working");
+                        testTILE.setAttribute("data-error", true);
+                    });
+                } else {
+                    volumeINPUT.setAttribute("data-error", true);
+                }
+            });
+
+            volumeINPUT.addEventListener("input", () => {
+                if (volumeINPUT.value.length > 0) {
+                    volumeINPUT.removeAttribute("data-error");
+                } else {
+                    if (volumeINPUT.value[volumeINPUT.value.length - 1] !== "%") {
+                        volumeINPUT.value = volumeINPUT.value + "%";
+                    }
+                }
+            });
+
+            volumeINPUT.addEventListener("keydown", (e) => {
+                if (e.key.toLowerCase() == "enter") {
+                    volumeBUTTON.click();
+                }
+            });
+
+            Comms.get("method=get_config", null).then((data) => {
+                let config = JSON.parse(data);
+
+                volumeINPUT.value = (Math.round(config.volume * 10000) / 100) + "%";
+                versionEL.innerText = "bunny-twitch-redeem@" + config.version;
+            });
 
         </script>
     </body>

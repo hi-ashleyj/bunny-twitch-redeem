@@ -11,6 +11,7 @@ UIEls.Redeem = function(prop) {
     element.append(alertStash[prop.name.toLowerCase()]);
 
     alertStash[prop.name.toLowerCase()].currentTime = 0;
+    alertStash[prop.name.toLowerCase()].volume = a.config.volume;
 
     window.setTimeout(() => {element.setAttribute("data-vis", true); alertStash[prop.name.toLowerCase()].play()}, 100);
 

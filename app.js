@@ -7,9 +7,11 @@ let fs = fsSync.promises;
 let ws = require("ws");
 let os = require("os");
 let opn = require("open");
+const { resolve } = require("path");
 
 let twHelixCID = "58luouc78gmhbvvzsbmnkwdkjxjn1h";
 let twChannel = "thrashingbunny";
+let appVersion = "1.2.0";
 
 let wss;
 let wsPort = 6969;
@@ -20,8 +22,11 @@ PubSub.token;
 PubSub.ready = false;
 
 let alerts = [];
+let jsonConfig;
 
 let documentsFolder = path.resolve(os.homedir(), "twitch-redemption");
+
+let configFileURI = path.resolve(os.homedir(), "twitch-redeem-config.json");
 
 let httpsGet = function(url, headers) {
     return new Promise((resolve, reject) => {
@@ -78,6 +83,28 @@ if (!fsSync.existsSync(documentsFolder)) {
     }
 } else {
     findAlerts();
+}
+
+let loadConfig = async function() {
+    try {
+        jsonConfig = JSON.parse(await fs.readFile(configFileURI));
+        jsonConfig.version = appVersion;
+        return jsonConfig;
+    } catch (_err) {
+
+    }
+};
+
+if (!fsSync.existsSync(configFileURI)) {
+    try {
+        fs.writeFile(configFileURI, JSON.stringify({volume: 1})).then(async function() {
+            await loadConfig();
+        });
+    } catch (_err) {
+        
+    }
+} else {
+    loadConfig();
 }
 
 let handleHTTPRequest = async function (req, res) {
@@ -141,9 +168,13 @@ let handleHTTPRequest = async function (req, res) {
             params[decodeURI(slitslit[0])] = decodeURI(slitslit[1]);
         }
 
+        console.log(params);
+
         if (params.method) {
             if (params.method == "get_list") {
                 res.end(JSON.stringify(await findAlerts()));
+            } else if (params.method == "get_config") {
+                res.end(JSON.stringify(await loadConfig()));
             }
         }
 
@@ -176,7 +207,9 @@ let handleHTTPRequest = async function (req, res) {
             params[slitslit[0]] = slitslit[1];
         }
 
-        if (params.method = "token_get") {
+        console.log(params);
+
+        if (params.method == "token_get") {
             // get data
 
             let buffer = Buffer.from([]);
@@ -194,10 +227,35 @@ let handleHTTPRequest = async function (req, res) {
                     PubSub.connect();
                 });
             });
+            res.statusCode = 200;
+            res.end();
+        } else if (params.method == "set_config") {
+            let buffer = Buffer.from([]);
+            req.on("data", (chunk) => {
+                buffer = Buffer.concat([buffer, chunk]);
+            });
+            req.on("end", async (e) => {
+                newConf = JSON.parse(buffer.toString());
+                jsonConfig = Object.assign(jsonConfig, newConf);
+                
+                try {
+                    await fs.writeFile(configFileURI, JSON.stringify(jsonConfig));
+                    wsReply(null, "CONFIG|user");
+                    res.statusCode = 200;
+                    res.write(JSON.stringify(jsonConfig));
+                    res.end()
+                } catch (_err) {
+                    res.statusCode = 500;
+                    res.end();
+                }
+            });
+        } else {
+            res.statusCode = 417;
+            res.end();
         }
 
-        res.statusCode = 200;
-        res.end();
+        
+        
     } else {
         res.statusCode = 400;
         res.writeHead(400, http.STATUS_CODES[400]);

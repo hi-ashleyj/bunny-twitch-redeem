@@ -1,5 +1,10 @@
 // Events for all the things
 
+let reloadConfig = async function() {
+    let config = JSON.parse(await Comms.get("method=get_config", {}));
+    a.config = Object.assign(a.config, config);
+};
+
 Socket.on("reload", async (_data) => {
     // Do reload here
     for (let name in alertStash) {
@@ -7,7 +12,7 @@ Socket.on("reload", async (_data) => {
     }
 
     alertStash = {};
-    let list = JSON.parse(await Comms.get("get_list", {}));
+    let list = JSON.parse(await Comms.get("method=get_list", {}));
 
     for (let name in list) {
         let work = document.createElement("video");
@@ -19,7 +24,11 @@ Socket.on("reload", async (_data) => {
         
         alertStash[name.toLowerCase()] = work;
     }
+
+    reloadConfig();
 });
+
+Socket.on("config", reloadConfig);
 
 Socket.on("redeem", (obj) => {
     UIEls.cueAlert("redeem", JSON.parse(obj));
